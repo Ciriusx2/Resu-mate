@@ -1,0 +1,3 @@
+# Resumate
+
+**Resumate** is an AI-powered platform designed to help students land their dream jobs. It provides tools to generate tailored resumes, mock interview questions, and cover letters based on job descriptions, industry requirements, and personal skills. By using modern technologies like **Next.js**, **Prisma**, **PostgreSQL**, **Gemini**, and **Clerk** for authentication, Resumate offers a seamless and intelligent job application experience.

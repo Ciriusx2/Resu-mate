@@ -50,7 +50,7 @@ const HeroSection = () => {
             <Button
               size="lg"
               variant="outline"
-              className="px-8 py-3 text-white border-white hover:bg-indigo-100 hover:text-indigo-600 transition-all duration-300"
+              className="px-8 py-3 text-black border-white hover:bg-indigo-100 hover:text-indigo-600 transition-all duration-300"
             >
               Watch Demo
             </Button>

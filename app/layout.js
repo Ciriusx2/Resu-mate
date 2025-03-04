@@ -3,7 +3,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import Header from "@/components/header";
-import "@radix-ui/themes/styles.css";
+//import "@radix-ui/themes/styles.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

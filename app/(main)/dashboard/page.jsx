@@ -15,7 +15,7 @@ export default async function DashboardPage() {
   const insights = await getIndustryInsights();
 
   return (
-    <div className="container mx-auto">
+    <div>
       <DashboardView insights={insights} />
     </div>
   );

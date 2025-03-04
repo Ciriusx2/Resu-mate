@@ -53,7 +53,7 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <section className="w-full py-12 md:py-24 bg-gray-100">
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-center">
             <div className="flex flex-col items-center justify-center space-y-2">
               <h3 className="text-5xl font-extrabold text-indigo-600">50+</h3>
@@ -77,7 +77,7 @@ export default function LandingPage() {
 
       {/* How It Works Section */}
       <section className="w-full py-16 md:py-32 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
               How Our Platform Works
@@ -107,7 +107,7 @@ export default function LandingPage() {
 
       {/* Testimonials Section */}
       <section className="w-full py-16 md:py-32 bg-gray-50">
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="px-4 md:px-6">
           <h2 className="text-4xl font-extrabold text-center text-gray-900 mb-12">
             Hear from Our Successful Users
           </h2>
@@ -153,7 +153,7 @@ export default function LandingPage() {
 
       {/* FAQ Section */}
       <section className="w-full py-16 md:py-32 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="px-4 md:px-6">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-4xl font-extrabold text-gray-900 mb-6">
               Frequently Asked Questions

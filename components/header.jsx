@@ -23,8 +23,8 @@ export default async function Header() {
   await checkUser();
 
   return (
-    <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/60 shadow-lg text-white">
-      <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <header className="max-w-screen-2xl mx-auto fixed top-0 w-full border-b bg-background/20 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/10 shadow-lg text-white">
+      <nav className="px-4 h-16 flex items-center justify-between">
         <Link href="/">
           <h2 className="text-2xl md:text-3xl italic">ResuMate</h2>
         </Link>
@@ -37,8 +37,8 @@ export default async function Header() {
                 variant="outline"
                 className="hidden md:inline-flex items-center gap-2"
               >
-                <LayoutDashboard className="h-4 w-4" />
-                Industry Insights
+                <LayoutDashboard className="h-4 w-4 text-black" />
+                <p className="text-black">Industry Insights</p>
               </Button>
               <Button variant="ghost" className="md:hidden w-10 h-10 p-0">
                 <LayoutDashboard className="h-4 w-4" />

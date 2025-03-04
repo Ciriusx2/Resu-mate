@@ -13,6 +13,7 @@ export default async function OnboardingPage() {
 
   return (
     <main>
+      <div className="grid-background"></div>
       <OnboardingForm industries={industries} />
     </main>
   );

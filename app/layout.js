@@ -3,45 +3,34 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import Header from "@/components/header";
-import { ThemeProvider } from "@/components/theme-provider";
-import { dark } from "@clerk/themes";
 import "@radix-ui/themes/styles.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "AI Career Coach",
-  description: "",
+  title: "Resu Mate",
+  description: "One stop solution for all your resume needs.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-      }}
-    >
+    <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <head>
           <link rel="icon" href="/logo.png" sizes="any" />
         </head>
-        <body className={`${inter.className}`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
+        <body className={`${inter.className} max-w-screen-2xl mx-auto pt-20 bg-gradient-to-r from-indigo-500 to-indigo-800`}>
+            <div className="grid-background"></div>
+
             <Header />
             <main className="min-h-screen">{children}</main>
             <Toaster richColors />
 
-            <footer className="bg-muted/50 py-12">
-              <div className="container mx-auto px-4 text-center text-gray-200">
-                <p>&#169; Rights are reserverd 2025.</p>
+            <footer className="py-3">
+              <div className="px-3 text-center text-gray-200">
+                <p>&#169; ResuMate Rights are reserverd 2025.</p>
               </div>
             </footer>
-          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

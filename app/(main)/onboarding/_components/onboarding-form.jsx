@@ -76,21 +76,22 @@ const OnboardingForm = ({ industries }) => {
   const watchIndustry = watch("industry");
 
   return (
-    <div className="flex items-center justify-center bg-background">
-      <Card className="w-full max-w-lg sm:max-w-md lg:max-w-lg mt-10 mx-2">
+    <div className="flex items-center justify-center min-h-screen">
+
+      <Card className="w-full max-w-lg sm:max-w-md lg:max-w-lg mt-10 mx-2 bg-white shadow-lg">
         <CardHeader>
-          <CardTitle className="gradient-title text-4xl">
+          <CardTitle className="text-4xl text-indigo-600 font-bold">
             Complete Your Profile
           </CardTitle>
           <CardDescription>
-            Select your industry to get personalized career insights and recommendations.
+            <p className="text-indigo-600">Select your industry to get personalized career insights and recommendations.</p>
           </CardDescription>
         </CardHeader>
         <CardContent className="px-6 py-4">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Industry Select */}
             <div className="space-y-2">
-              <Label htmlFor="industry">Industry</Label>
+              <Label htmlFor="industry" className="text-indigo-600 font-semibold">Industry</Label>
               <Select
                 onValueChange={(value) => {
                   setValue("industry", value);
@@ -104,9 +105,9 @@ const OnboardingForm = ({ industries }) => {
                 <SelectContent>
                   {industries ? (
                     <SelectGroup>
-                      <SelectLabel>Industries</SelectLabel>
+                      <SelectLabel className="bg-white">Industries</SelectLabel>
                       {industries.map((ind) => (
-                        <SelectItem key={ind.id} value={ind.id}>
+                        <SelectItem key={ind.id} value={ind.id} className="bg-white">
                           {ind.name}
                         </SelectItem>
                       ))}
@@ -124,7 +125,7 @@ const OnboardingForm = ({ industries }) => {
             {/* SubIndustry Select */}
             {watchIndustry && (
               <div className="space-y-2">
-                <Label htmlFor="subIndustry">Specialization</Label>
+                <Label htmlFor="subIndustry" className="text-indigo-600 font-semibold">Specialization</Label>
                 {selectedIndustry ? (
                   <Select
                     onValueChange={(value) => setValue("subIndustry", value)}
@@ -134,9 +135,9 @@ const OnboardingForm = ({ industries }) => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectLabel>Specializations</SelectLabel>
+                        <SelectLabel className="bg-white">Specializations</SelectLabel>
                         {selectedIndustry?.subIndustries.map((sub) => (
-                          <SelectItem key={sub} value={sub}>
+                          <SelectItem key={sub} value={sub} className="bg-white">
                             {sub}
                           </SelectItem>
                         ))}
@@ -154,7 +155,7 @@ const OnboardingForm = ({ industries }) => {
 
             {/* Years of Experience */}
             <div className="space-y-2">
-              <Label htmlFor="experience">Years of Experience</Label>
+              <Label htmlFor="experience" className="text-indigo-600 font-semibold">Years of Experience</Label>
               <Input
                 id="experience"
                 type="number"
@@ -171,14 +172,14 @@ const OnboardingForm = ({ industries }) => {
 
             {/* Skills */}
             <div className="space-y-2">
-              <Label htmlFor="skills">Skills</Label>
+              <Label htmlFor="skills" className="text-indigo-600 font-semibold">Skills</Label>
               <Input
                 id="skills"
                 placeholder="e.g., Python, JavaScript, Project Management"
                 {...register("skills")}
                 disabled={updateLoading}
               />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground text-indigo-600">
                 Separate multiple skills with commas
               </p>
               {errors.skills && (
@@ -188,7 +189,7 @@ const OnboardingForm = ({ industries }) => {
 
             {/* Professional Bio */}
             <div className="space-y-2">
-              <Label htmlFor="bio">Professional Bio</Label>
+              <Label htmlFor="bio" className="text-indigo-600 font-semibold">Professional Bio</Label>
               <Textarea
                 id="bio"
                 placeholder="Tell us about your professional background..."
@@ -204,7 +205,7 @@ const OnboardingForm = ({ industries }) => {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full"
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md transition-all duration-300 w-full"
               disabled={updateLoading}
               aria-disabled={updateLoading}
             >

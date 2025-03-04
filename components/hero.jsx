@@ -27,7 +27,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section className="w-full pt-36 md:pt-48 pb-10 bg-gradient-to-r from-indigo-500 to-indigo-800 text-white">
+    <section className="w-full pt-36 md:pt-48 pb-10 text-white">
       <div className="space-y-6 text-center">
         <div className="space-y-6 mx-auto">
           <h1 className="text-5xl font-extrabold md:text-6xl lg:text-7xl xl:text-8xl gradient-title animate-gradient">

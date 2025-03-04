@@ -27,8 +27,8 @@ export default function LandingPage() {
       <HeroSection />
 
       {/* Features Section */}
-      <section className="w-full py-16 md:py-32 lg:py-40 bg-gradient-to-r from-indigo-500 to-indigo-800 text-white">
-        <div className="container mx-auto px-4 md:px-6">
+      <section className="w-full py-16 md:py-32 lg:py-40 text-white">
+        <div className="px-4 md:px-6">
           <h2 className="text-4xl font-extrabold tracking-tight text-center mb-12 text-white">
             Elevate Your Career with Cutting-Edge Tools
           </h2>

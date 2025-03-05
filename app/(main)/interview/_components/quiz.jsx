@@ -16,11 +16,15 @@ import { generateQuiz, saveQuizResult } from "@/actions/interview";
 import QuizResult from "./quiz-result";
 import useFetch from "@/hooks/use-fetch";
 import { BarLoader } from "react-spinners";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 export default function Quiz() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
 
   const {
     loading: generatingQuiz,
@@ -84,6 +88,15 @@ export default function Quiz() {
     setResultData(null);
   };
 
+  const handleStartQuiz = () => {
+    setShowModal(true);
+  };
+
+  const handleGenerateQuiz = () => {
+    setShowModal(false);
+    generateQuizFn(jobDescription);
+  };
+
   if (generatingQuiz) {
     return <BarLoader className="mt-4" width={"100%"} color="gray" />;
   }
@@ -99,22 +112,47 @@ export default function Quiz() {
 
   if (!quizData) {
     return (
-      <Card className="mx-2">
-        <CardHeader>
-          <CardTitle>Ready to test your knowledge?</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            This quiz contains 10 questions specific to your industry and
-            skills. Take your time and choose the best answer for each question.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={generateQuizFn} className="w-full">
-            Start Quiz
-          </Button>
-        </CardFooter>
-      </Card>
+      <>
+        <Card className="mx-2">
+          <CardHeader>
+            <CardTitle>Ready to test your knowledge?</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              This quiz contains 10 questions specific to your industry and
+              skills. Take your time and choose the best answer for each question.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleStartQuiz} className="w-full">
+              Start Quiz
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Dialog open={showModal} onOpenChange={setShowModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Choose Quiz Type</DialogTitle>
+              <DialogDescription>
+                You can either provide a job description to tailor the questions or start the quiz based on your skills.
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              placeholder="Paste job description here (optional)"
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              className="mb-4"
+              rows={7}
+            />
+            <DialogFooter>
+              <Button onClick={handleGenerateQuiz} className="w-full">
+                Start Quiz
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   }
 

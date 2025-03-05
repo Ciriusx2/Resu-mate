@@ -193,11 +193,11 @@ export default function ResumeBuilder({ initialContent }) {
         </TabsList>
 
         <TabsContent value="edit">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 text-white">
             {/* Contact Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Contact Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email</label>
                   <Input

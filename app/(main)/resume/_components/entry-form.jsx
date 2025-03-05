@@ -261,7 +261,7 @@ export function EntryForm({ type, entries, onChange }) {
 
       {!isAdding && (
         <Button
-          className="w-full"
+          className="w-full text-black"
           variant="outline"
           onClick={() => setIsAdding(true)}
         >

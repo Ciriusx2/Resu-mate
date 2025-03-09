@@ -10,6 +10,7 @@
 - run npm install ( npm install --force ) if facing error
 - create a new file .env
 - we have given some variables for .env which we have to extract out
+- run 'npx prisma migrate dev'
 - after everything is done run 'npm run dev' to start the development server
 
 

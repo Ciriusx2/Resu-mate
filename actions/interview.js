@@ -2,10 +2,7 @@
 
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+import { generateJsonWithGroq, generateWithGroq } from "@/lib/groq-client";
 
 export async function generateQuiz(jobDescription = "") {
   const { userId } = await auth();
@@ -42,12 +39,7 @@ export async function generateQuiz(jobDescription = "") {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
-    const quiz = JSON.parse(cleanedText);
-
+    const quiz = await generateJsonWithGroq(prompt);
     return quiz.questions;
   } catch (error) {
     console.error("Error generating quiz:", error);
@@ -98,9 +90,7 @@ export async function saveQuizResult(questions, answers, score) {
     `;
 
     try {
-      const tipResult = await model.generateContent(improvementPrompt);
-
-      improvementTip = tipResult.response.text().trim();
+      improvementTip = await generateWithGroq(improvementPrompt);
       console.log(improvementTip);
     } catch (error) {
       console.error("Error generating improvement tip:", error);

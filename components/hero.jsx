@@ -46,15 +46,6 @@ const HeroSection = () => {
               Get Started
             </Button>
           </Link>
-          <Link href="https://www.youtube.com/roadsidecoder">
-            <Button
-              size="lg"
-              variant="outline"
-              className="px-8 py-3 text-black border-white hover:bg-indigo-100 hover:text-indigo-600 transition-all duration-300"
-            >
-              Watch Demo
-            </Button>
-          </Link>
         </div>
         <div className="hero-image-wrapper mt-8 md:mt-12">
           <div ref={imageRef} className="hero-image">

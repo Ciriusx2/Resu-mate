@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BarChart,
   Bar,
@@ -17,7 +18,7 @@ import {
   TrendingDown,
   Brain,
 } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import {
   Card,
   CardContent,
@@ -27,8 +28,30 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const DashboardView = ({ insights }) => {
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSearch = (e) => {
+    setLoading(true);
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/dashboard/${searchTerm.trim()}`);
+    }
+  };
+
+  const industrySuggestions = [
+    "Data Scientist",
+    "Software Developer",
+    "UI/UX Developer",
+    "Product Manager",
+    "Marketing Specialist",
+  ];
+
   // Transform salary data for the chart
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
@@ -68,15 +91,35 @@ const DashboardView = ({ insights }) => {
 
   // Format dates using date-fns
   const lastUpdatedDate = format(new Date(insights.lastUpdated), "dd/MM/yyyy");
-  const nextUpdateDistance = formatDistanceToNow(
-    new Date(insights.nextUpdate),
-    { addSuffix: true }
-  );
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Badge variant="outline" className="text-white">Last updated: {lastUpdatedDate}</Badge>
+      </div>
+
+      <div className="flex items-center space-x-4">
+        <Input
+          type="text"
+          placeholder="Search for an industry..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full text-white"
+        />
+        <Button onClick={handleSearch} className="bg-white text-black hover:bg-gray-500"> { loading ? 'Searching' : '  Search  ' }</Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {industrySuggestions.map((suggestion) => (
+          <Badge
+            key={suggestion}
+            variant="outline"
+            className="cursor-pointer text-white"
+            onClick={() => setSearchTerm(suggestion)}
+          >
+            {suggestion}
+          </Badge>
+        ))}
       </div>
 
       {/* Market Overview Cards */}
@@ -90,9 +133,6 @@ const DashboardView = ({ insights }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{insights.marketOutlook}</div>
-            <p className="text-xs text-muted-foreground">
-              Next update {nextUpdateDistance}
-            </p>
           </CardContent>
         </Card>
 

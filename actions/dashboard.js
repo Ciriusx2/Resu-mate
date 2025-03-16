@@ -25,36 +25,47 @@ export const generateAIInsights = async (industry) => {
           Include at least 5 skills and trends.
         `;
 
-  return await generateJsonWithGroq(prompt);
+  const result = await generateJsonWithGroq(prompt);
+  //console.log(`Generated result for ${industry} is`,result);
+  return result;
 };
 
-export async function getIndustryInsights() {
+export async function getIndustryInsights(industry) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-    include: {
-      industryInsight: true,
-    },
-  });
+  // const user = await db.user.findUnique({
+  //   where: { clerkUserId: userId },
+  //   include: {
+  //     industryInsight: true,
+  //   },
+  // });
 
-  if (!user) throw new Error("User not found");
+  // if (!user) throw new Error("User not found");
 
   // If no insights exist, generate them
-  if (!user.industryInsight) {
-    const insights = await generateAIInsights(user.industry);
+  // if (!user.industryInsight) {
+  //   const insights = await generateAIInsights(user.industry);
 
-    const industryInsight = await db.industryInsight.create({
-      data: {
-        industry: user.industry,
-        ...insights,
-        nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
-    });
+  //   const industryInsight = await db.industryInsight.create({
+  //     data: {
+  //       industry: user.industry,
+  //       ...insights,
+  //       nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  //     },
+  //   });
 
-    return industryInsight;
-  }
+  //   return industryInsight;
+  // }
 
-  return user.industryInsight;
+  const insights = await generateAIInsights(industry);
+  const industryInsight = {
+    data: {
+      industry,
+      ...insights,
+      nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      lastUpdated: new Date()
+    },
+  };
+  return industryInsight.data;
 }

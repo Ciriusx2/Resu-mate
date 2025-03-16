@@ -1,22 +1,26 @@
-import { getIndustryInsights } from "@/actions/dashboard";
 import DashboardView from "./_component/dashboard-view";
-import { getUserOnboardingStatus } from "@/actions/user";
 import { redirect } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/prisma";
 
 export default async function DashboardPage() {
-  const { isOnboarded } = await getUserOnboardingStatus();
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
 
-  // If not onboarded, redirect to onboarding page
-  // Skip this check if already on the onboarding page
-  if (!isOnboarded) {
-    redirect("/onboarding");
-  }
+  const user = await db.user.findUnique({
+    where: { clerkUserId: userId },
+    include: {
+      industryInsight: true,
+    },
+  });
 
-  const insights = await getIndustryInsights();
+  if (!user) throw new Error("User not found");
+
+  redirect(`/dashboard/${user.industry}`);
 
   return (
     <div>
-      <DashboardView insights={insights} />
+      <p className="text-white">Redirecting to Industry Insights</p>
     </div>
   );
 }

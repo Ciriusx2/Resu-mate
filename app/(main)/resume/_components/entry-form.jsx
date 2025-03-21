@@ -1,4 +1,4 @@
-// app/resume/_components/entry-form.jsx
+// Modified entry-form.jsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -27,8 +27,32 @@ const formatDisplayDate = (dateString) => {
   return format(date, "MMM yyyy");
 };
 
-export function EntryForm({ type, entries, onChange }) {
+// Sample templates for different entry types to provide context for AI
+const getContextForType = (type, data) => {
+  const contextMap = {
+    experience: {
+      prompt: `Improve this work experience description for a resume. Make it more impactful by focusing on achievements and using strong action verbs. Include metrics where possible. This is for a ${data.title} position at ${data.organization}:`,
+      example: "Led cross-functional team to deliver product features on time and under budget"
+    },
+    education: {
+      prompt: `Enhance this education description for a resume. Focus on relevant coursework, achievements, and skills gained. This is for ${data.title} at ${data.organization}:`,
+      example: "Graduated with honors, focusing on machine learning and data structures"
+    },
+    project: {
+      prompt: `Improve this project description for a resume. Highlight technologies used, your role, and measurable outcomes. This is for the project titled ${data.title}:`,
+      example: "Developed a mobile application that increased user engagement by 45%"
+    }
+  };
+
+  return contextMap[type.toLowerCase()] || { 
+    prompt: `Improve this ${type.toLowerCase()} description for a resume:`,
+    example: "Make it concise, achievement-oriented, and use active voice"
+  };
+};
+
+export function EntryForm({ type, entries, onChange, currentIndustry = "professional" }) {
   const [isAdding, setIsAdding] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
 
   const {
     register,
@@ -37,6 +61,7 @@ export function EntryForm({ type, entries, onChange }) {
     reset,
     watch,
     setValue,
+    getValues,
   } = useForm({
     resolver: zodResolver(entrySchema),
     defaultValues: {
@@ -55,10 +80,17 @@ export function EntryForm({ type, entries, onChange }) {
     const formattedEntry = {
       ...data,
       startDate: formatDisplayDate(data.startDate),
-      endDate: data.current ? "" : formatDisplayDate(data.endDate),
+      endDate: data.current ? "Present" : formatDisplayDate(data.endDate),
     };
 
-    onChange([...entries, formattedEntry]);
+    if (editIndex !== null) {
+      const newEntries = [...entries];
+      newEntries[editIndex] = formattedEntry;
+      onChange(newEntries);
+      setEditIndex(null);
+    } else {
+      onChange([...entries, formattedEntry]);
+    }
 
     reset();
     setIsAdding(false);
@@ -67,6 +99,30 @@ export function EntryForm({ type, entries, onChange }) {
   const handleDelete = (index) => {
     const newEntries = entries.filter((_, i) => i !== index);
     onChange(newEntries);
+  };
+
+  const handleEdit = (index) => {
+    const entry = entries[index];
+    setEditIndex(index);
+    setIsAdding(true);
+
+    // Convert display dates back to form format (yyyy-MM)
+    const startDate = entry.startDate !== "Present" 
+      ? format(parse(entry.startDate, "MMM yyyy", new Date()), "yyyy-MM")
+      : "";
+    
+    const endDate = entry.endDate !== "Present" 
+      ? format(parse(entry.endDate, "MMM yyyy", new Date()), "yyyy-MM")
+      : "";
+
+    reset({
+      title: entry.title,
+      organization: entry.organization,
+      startDate,
+      endDate,
+      description: entry.description,
+      current: entry.endDate === "Present",
+    });
   };
 
   const {
@@ -87,7 +143,7 @@ export function EntryForm({ type, entries, onChange }) {
     }
   }, [improvedContent, improveError, isImproving, setValue]);
 
-  // Replace handleImproveDescription with this
+  // Enhance handleImproveDescription with better prompting
   const handleImproveDescription = async () => {
     const description = watch("description");
     if (!description) {
@@ -95,10 +151,24 @@ export function EntryForm({ type, entries, onChange }) {
       return;
     }
 
-    await improveWithAIFn({
-      current: description,
-      type: type.toLowerCase(), // 'experience', 'education', or 'project'
-    });
+    const formData = getValues();
+    const context = getContextForType(type, formData);
+
+    try {
+      await improveWithAIFn({
+        current: description,
+        type: type.toLowerCase(),
+        context: JSON.stringify({
+          title: formData.title,
+          organization: formData.organization,
+          prompt: context.prompt,
+          example: context.example,
+          industry: currentIndustry
+        })
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to improve description");
+    }
   };
 
   return (
@@ -110,18 +180,28 @@ export function EntryForm({ type, entries, onChange }) {
               <CardTitle className="text-sm font-medium">
                 {item.title} @ {item.organization}
               </CardTitle>
-              <Button
-                variant="outline"
-                size="icon"
-                type="button"
-                onClick={() => handleDelete(index)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  type="button"
+                  onClick={() => handleEdit(index)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  type="button"
+                  onClick={() => handleDelete(index)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                {item.current
+                {item.current || item.endDate === "Present"
                   ? `${item.startDate} - Present`
                   : `${item.startDate} - ${item.endDate}`}
               </p>
@@ -136,7 +216,7 @@ export function EntryForm({ type, entries, onChange }) {
       {isAdding && (
         <Card>
           <CardHeader>
-            <CardTitle>Add {type}</CardTitle>
+            <CardTitle>{editIndex !== null ? `Edit ${type}` : `Add ${type}`}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -247,13 +327,23 @@ export function EntryForm({ type, entries, onChange }) {
               onClick={() => {
                 reset();
                 setIsAdding(false);
+                setEditIndex(null);
               }}
             >
               Cancel
             </Button>
             <Button type="button" onClick={handleAdd}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Add Entry
+              {editIndex !== null ? (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
+              ) : (
+                <>
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Add Entry
+                </>
+              )}
             </Button>
           </CardFooter>
         </Card>

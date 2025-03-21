@@ -1,3 +1,4 @@
+// Modified resume-builder.jsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,6 +11,7 @@ import {
   Loader2,
   Monitor,
   Save,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
@@ -17,25 +19,29 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { saveResume } from "@/actions/resume";
+import { saveResume, improveWithAI } from "@/actions/resume";
 import { EntryForm } from "./entry-form";
+import { IndustrySelector } from "./industry-selector";
 import useFetch from "@/hooks/use-fetch";
 import { useUser } from "@clerk/nextjs";
 import { entriesToMarkdown } from "@/app/lib/helper";
 import { resumeSchema } from "@/app/lib/schema";
 import html2pdf from "html2pdf.js/dist/html2pdf.min.js";
 
-export default function ResumeBuilder({ initialContent }) {
+export default function ResumeBuilder({ initialContent, userIndustry = "professional" }) {
   const [activeTab, setActiveTab] = useState("edit");
   const [previewContent, setPreviewContent] = useState(initialContent);
   const { user } = useUser();
   const [resumeMode, setResumeMode] = useState("preview");
+  const [isImprovingSummary, setIsImprovingSummary] = useState(false);
+  const [currentIndustry, setCurrentIndustry] = useState(userIndustry);
 
   const {
     control,
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(resumeSchema),
@@ -55,6 +61,13 @@ export default function ResumeBuilder({ initialContent }) {
     data: saveResult,
     error: saveError,
   } = useFetch(saveResume);
+
+  const {
+    loading: isImproving,
+    fn: improveWithAIFn,
+    data: improvedContent,
+    error: improveError,
+  } = useFetch(improveWithAI);
 
   // Watch form fields for preview updates
   const formValues = watch();
@@ -81,6 +94,19 @@ export default function ResumeBuilder({ initialContent }) {
     }
   }, [saveResult, saveError, isSaving]);
 
+  // Handle AI improvement result for summary
+  useEffect(() => {
+    if (improvedContent && !isImproving && isImprovingSummary) {
+      setValue("summary", improvedContent);
+      setIsImprovingSummary(false);
+      toast.success("Summary improved successfully!");
+    }
+    if (improveError && isImprovingSummary) {
+      setIsImprovingSummary(false);
+      toast.error(improveError.message || "Failed to improve summary");
+    }
+  }, [improvedContent, improveError, isImproving, setValue, isImprovingSummary]);
+
   const getContactMarkdown = () => {
     const { contactInfo } = formValues;
     const parts = [];
@@ -102,8 +128,8 @@ export default function ResumeBuilder({ initialContent }) {
       getContactMarkdown(),
       summary && `## Professional Summary\n\n${summary}`,
       skills && `## Skills\n\n${skills}`,
-      entriesToMarkdown(experience, "Work Experience"),
       entriesToMarkdown(education, "Education"),
+      entriesToMarkdown(experience, "Work Experience"),
       entriesToMarkdown(projects, "Projects"),
     ]
       .filter(Boolean)
@@ -146,6 +172,34 @@ export default function ResumeBuilder({ initialContent }) {
     }
   };
 
+  // Handle improve summary with AI
+  const handleImproveSummary = async () => {
+    const summary = watch("summary");
+    if (!summary) {
+      toast.error("Please enter a summary first");
+      return;
+    }
+
+    setIsImprovingSummary(true);
+    try {
+      await improveWithAIFn({
+        current: summary,
+        type: "summary",
+        context: JSON.stringify({
+          industry: currentIndustry
+        })
+      });
+    } catch (error) {
+      toast.error(error.message || "Failed to improve summary");
+      setIsImprovingSummary(false);
+    }
+  };
+
+  // Handle industry change
+  const handleIndustryUpdate = (industry) => {
+    setCurrentIndustry(industry);
+  };
+
   return (
     <div data-color-mode="light" className="space-y-4">
       <div className="flex flex-col md:flex-row justify-between items-center gap-2">
@@ -184,6 +238,14 @@ export default function ResumeBuilder({ initialContent }) {
             )}
           </Button>
         </div>
+      </div>
+
+      {/* Industry Selector */}
+      <div className="p-4 border rounded-lg bg-muted/30">
+        <IndustrySelector 
+          currentIndustry={currentIndustry} 
+          onSuccess={handleIndustryUpdate}
+        />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -259,24 +321,67 @@ export default function ResumeBuilder({ initialContent }) {
             {/* Summary */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Professional Summary</h3>
+              <div className="space-y-2">
+                <Controller
+                  name="summary"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      className="h-32"
+                      placeholder="Write a compelling professional summary..."
+                      error={errors.summary}
+                    />
+                  )}
+                />
+                {errors.summary && (
+                  <p className="text-sm text-red-500">{errors.summary.message}</p>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleImproveSummary}
+                  disabled={isImproving || !watch("summary")}
+                >
+                  {isImproving && isImprovingSummary ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Improving...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Improve with AI
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Education - Moved above Skills */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Education</h3>
               <Controller
-                name="summary"
+                name="education"
                 control={control}
                 render={({ field }) => (
-                  <Textarea
-                    {...field}
-                    className="h-32"
-                    placeholder="Write a compelling professional summary..."
-                    error={errors.summary}
+                  <EntryForm
+                    type="Education"
+                    entries={field.value}
+                    onChange={field.onChange}
+                    currentIndustry={currentIndustry}
                   />
                 )}
               />
-              {errors.summary && (
-                <p className="text-sm text-red-500">{errors.summary.message}</p>
+              {errors.education && (
+                <p className="text-sm text-red-500">
+                  {errors.education.message}
+                </p>
               )}
             </div>
 
-            {/* Skills */}
+            {/* Skills - Moved below Education */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Skills</h3>
               <Controller
@@ -307,33 +412,13 @@ export default function ResumeBuilder({ initialContent }) {
                     type="Experience"
                     entries={field.value}
                     onChange={field.onChange}
+                    currentIndustry={currentIndustry}
                   />
                 )}
               />
               {errors.experience && (
                 <p className="text-sm text-red-500">
                   {errors.experience.message}
-                </p>
-              )}
-            </div>
-
-            {/* Education */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Education</h3>
-              <Controller
-                name="education"
-                control={control}
-                render={({ field }) => (
-                  <EntryForm
-                    type="Education"
-                    entries={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-              {errors.education && (
-                <p className="text-sm text-red-500">
-                  {errors.education.message}
                 </p>
               )}
             </div>
@@ -349,6 +434,7 @@ export default function ResumeBuilder({ initialContent }) {
                     type="Project"
                     entries={field.value}
                     onChange={field.onChange}
+                    currentIndustry={currentIndustry}
                   />
                 )}
               />
@@ -389,7 +475,7 @@ export default function ResumeBuilder({ initialContent }) {
             <div className="flex p-3 gap-2 items-center border-2 border-yellow-600 text-yellow-600 rounded mb-2">
               <AlertTriangle className="h-5 w-5" />
               <span className="text-sm">
-                You will lose editied markdown if you update the form data.
+                You will lose edited markdown if you update the form data.
               </span>
             </div>
           )}

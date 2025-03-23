@@ -26,7 +26,14 @@ export default async function Header() {
     <header className="max-w-screen-2xl mx-auto fixed top-0 w-full border-b bg-background/20 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/10 shadow-lg text-white">
       <nav className="px-4 h-16 flex items-center justify-between">
         <Link href="/">
-          <h2 className="text-2xl md:text-3xl italic">ResuMate</h2>
+          <Image
+            src="/mainLogo.png"
+            width={200}
+            height={200}
+            alt="Resu Mate"
+            className="opacity-85"
+            priority
+          />
         </Link>
 
         {/* Action Buttons */}

@@ -159,6 +159,7 @@ export default function ResumeBuilder({ initialContent, userIndustry = "professi
   };
 
   const onSubmit = async (data) => {
+    console.log('to be sent to gpt:',data);
     try {
       const formattedContent = previewContent
         .replace(/\n/g, "\n") // Normalize newlines
